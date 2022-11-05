@@ -7,7 +7,7 @@ url='https://github.com/ttcchhmm/mdtopdf'
 arch=('any')
 license=('GPL2')
 
-depends=('bash', 'pandoc', 'texlive-bin', 'noto-fonts', 'ttf-droid')
+depends=('bash' 'pandoc' 'texlive-bin' 'noto-fonts' 'ttf-droid')
 makedepends=('git')
 
 source=('git+https://github.com/ttcchhmm/mdtopdf.git')
