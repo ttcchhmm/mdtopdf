@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+mermaid_filter_installed=0
+
+if [[ -d /usr/lib/node_modules/mermaid-filter ]]; then
+    mermaid_filter_installed=1
+else
+    echo 'The filter used to process Mermaid diagrams is not found in /usr/lib/node_modules/mermaid-filter. See https://www.npmjs.com/package/mermaid-filter to install it.' > /dev/stderr
+fi
+
+process_file() {
+    echo "Working on $1..."
+
+    mermaid_filter_args=''
+    if [[ $mermaid_filter_installed -eq 1 ]]; then
+        mermaid_filter_args="-F 'mermaid-filter'"
+    fi
+
+    pandoc --highlight-style 'pygments' --pdf-engine 'xelatex' -f 'gfm' -V 'papersize:a4' -V 'geometry:margin=1.5cm' -V 'colorlinks=true' -V 'mainfont:Noto Sans' -V 'monofont:Droid Sans Mono' $mermaid_filter_args -o "$1.pdf" "$1"
+
+    if [[ $mermaid_filter_installed -eq 1 ]]; then
+        err_file_size=$(ls -s mermaid-filter.err | cut -f 1 -d ' ')
+
+        if [[ err_file_size -ne 0 ]]; then
+            mv 'mermaid-filter.err' "mermaid-filter-$1.err"
+
+            echo "An error happened while processing $1." > /dev/stderr
+            echo "See ./mermaid-filter-$1.err for more details." > /dev/stderr
+        else
+            rm 'mermaid-filter.err'
+        fi
+    fi
+}
+
+if [[ $# -eq 0 ]]; then
+    echo 'Processing every Markdown file in the current directory...'
+
+    if [[ $(ls -1q *.md 2> /dev/null | wc -l) -eq 0 ]]; then
+        echo 'No Markdown files found.'
+    else
+        for file in *.md; do
+            process_file "$file"
+        done
+    fi
+else
+    echo "Processing $# Markdown files..."
+
+    for file in $*; do
+        process_file $file
+    done
+fi
+
+echo 'Finished.'
