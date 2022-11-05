@@ -11,10 +11,11 @@ depends=('bash' 'pandoc' 'texlive-bin' 'noto-fonts' 'ttf-droid')
 makedepends=('git')
 
 source=('git+https://github.com/ttcchhmm/mdtopdf.git')
+md5sums('SKIP')
 
 pkgver() {
-    cd mdtopdf
-    git describe --long | sed 's/-/.r/;s/-/./'
+    cd "${srcdir}/${_pkgname}"
+    git describe --always
 }
 
 package() {
